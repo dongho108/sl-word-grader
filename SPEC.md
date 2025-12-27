@@ -135,37 +135,37 @@ SL프라임 영어 시험 채점기
 
 ## 4. 데이터 명세
 
-### 4.1 정답지 데이터
-- 정답지 ID (고유 식별자)
-- 페이지 목록
-  - 페이지 번호
-  - 이미지 데이터 (Base64 또는 파일 경로)
-  - 촬영 일시
-- 총 페이지 수
-- 등록 일시
+### 4.1 정답지 데이터 (Stage 1: 로컬 스토리지 / Stage 2: Firestore - answerSheets)
+- id: 정답지 ID (고유 식별자)
+- pages: 페이지 목록
+  - pageNumber: 페이지 번호
+  - imageData: 이미지 데이터 (Stage 1: Base64 / Stage 2: Storage URL)
+  - capturedAt: 촬영 일시
+- totalPages: 총 페이지 수
+- createdAt: 등록 일시
 
-### 4.2 시험지 데이터
-- 시험지 ID (고유 식별자)
-- 연결된 정답지 ID
-- 페이지 목록
-  - 페이지 번호
-  - 이미지 데이터
-- 총 페이지 수
-- 촬영 일시
+### 4.2 시험지 데이터 (Stage 1: 로컬 스토리지 / Stage 2: Firestore - examSheets)
+- id: 시험지 ID (고유 식별자)
+- answerSheetId: 연결된 정답지 ID
+- pages: 페이지 목록
+  - pageNumber: 페이지 번호
+  - imageData: 이미지 데이터 (Stage 1: Base64 / Stage 2: Storage URL)
+- totalPages: 총 페이지 수
+- capturedAt: 촬영 일시
 
-### 4.3 채점 결과 데이터
-- 결과 ID (고유 식별자)
-- 연결된 시험지 ID
-- 학생 이름
-- 총 문제 수
-- 정답 개수
-- 오답 개수
-- 오답 상세 목록
-  - 문제 번호
-  - 학생 답안
-  - 정답
-  - 오답 이유
-- 채점 일시
+### 4.3 채점 결과 데이터 (Stage 1: 로컬 스토리지 / Stage 2: Firestore - gradingResults)
+- id: 결과 ID (고유 식별자)
+- examSheetId: 연결된 시험지 ID
+- studentName: 학생 이름
+- totalQuestions: 총 문제 수
+- correctCount: 정답 개수
+- wrongCount: 오답 개수
+- wrongAnswers: 오답 상세 목록
+  - questionNumber: 문제 번호
+  - studentAnswer: 학생 답안
+  - correctAnswer: 정답
+  - reason: 오답 이유
+- gradedAt: 채점 일시
 
 ---
 
@@ -231,26 +231,37 @@ SL프라임 영어 시험 채점기
 
 ---
 
-### Stage 2: 백엔드 연동
+### Stage 2: Firebase 백엔드 연동
 
 **목표**
-- REST API 백엔드 구현
-- 프론트엔드와 백엔드 연동
-- 서버에서 LLM API 호출 처리
+- Firebase 서비스를 활용한 서버리스 백엔드 구축
+- 프론트엔드와 Firebase 연동
+- Firebase Functions에서 LLM API 호출 처리
+- API 키 보안 (서버 측에서만 LLM API 호출)
 
-**구현 범위**
-- 정답지 업로드 API
-- 시험지 업로드 API
-- 채점 요청 API
-- 채점 결과 조회 API
-- 서버 측 LLM API 연동
-- API 키 보안 처리
+**Firebase 서비스 구성**
 
-**API 목록**
-- 정답지 등록: 이미지 업로드 및 저장
-- 시험지 제출: 이미지 업로드 및 채점 요청
-- 채점 실행: LLM 호출 및 결과 생성
-- 결과 조회: 채점 결과 반환
+Firebase Storage (이미지 저장)
+- 정답지 이미지 업로드 및 저장
+- 시험지 이미지 업로드 및 저장
+- 저장 경로: /answer-sheets/{answerId}/{pageNumber}.jpg
+- 저장 경로: /exam-sheets/{examId}/{pageNumber}.jpg
+
+Firestore (데이터베이스)
+- 정답지 메타데이터 저장 (answerSheets 컬렉션)
+- 시험지 메타데이터 저장 (examSheets 컬렉션)
+- 채점 결과 저장 (gradingResults 컬렉션)
+
+Firebase Functions (서버리스 함수)
+- gradeExam: 채점 요청 처리 및 LLM API 호출
+- LLM API 키는 Functions 환경변수로 안전하게 관리
+
+**동작 흐름**
+- 프론트에서 Firebase Storage에 이미지 직접 업로드
+- 업로드 완료 후 Firestore에 메타데이터 저장
+- 채점 요청 시 Firebase Functions 호출
+- Functions에서 Storage 이미지 읽기 → LLM API 호출 → 결과 Firestore에 저장
+- 프론트에서 Firestore 실시간 구독으로 결과 수신
 
 ---
 
