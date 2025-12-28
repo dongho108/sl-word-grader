@@ -85,8 +85,8 @@ export const ScannedPagesList: React.FC<ScannedPagesListProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingTop: spacing.md,
+    maxHeight: 160,
   },
   header: {
     flexDirection: 'row',

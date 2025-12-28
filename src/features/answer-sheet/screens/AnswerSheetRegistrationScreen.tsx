@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../../../components/atoms';
 import { ConfirmModal } from '../../../components/molecules';
-import { CameraPreview, ScannedPagesList, StepIndicator, CameraGuide } from '../components';
+import { CameraPreview, ScannedPagesList, StepIndicator, CameraGuide, ActionButtons } from '../components';
 import { useAnswerSheetImages } from '../hooks';
 import { colors, spacing } from '../../../theme';
 
@@ -21,11 +21,13 @@ export const AnswerSheetRegistrationScreen: React.FC = () => {
     pages,
     selectedPageId,
     hasExistingData,
+    canComplete,
     cameraRef,
     device,
     hasPermission,
     isCapturing,
     capturePhoto,
+    pickFromGallery,
     deletePage,
     selectPage,
     completeRegistration,
@@ -87,46 +89,68 @@ export const AnswerSheetRegistrationScreen: React.FC = () => {
     pages.forEach((page) => deletePage(page.id));
   }, [pages, deletePage]);
 
+  const handleStartGrading = useCallback(async () => {
+    await completeRegistration();
+    // TODO: 채점 화면으로 이동
+    navigation.goBack();
+  }, [completeRegistration, navigation]);
+
   const currentStep = 1;
   const totalSteps = 3;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Step Indicator */}
-      <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
+      {/* 상단 콘텐츠 영역 - 스크롤 가능 */}
+      <ScrollView
+        style={styles.contentArea}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Step Indicator */}
+        <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
-      {/* Header Text */}
-      <View style={styles.headerSection}>
-        <Text style={styles.title}>
-          {'네모 칸 안에 정답지를\n맞춰주세요'}
-        </Text>
-        <Text style={styles.subtitle}>
-          그림자가 지지 않게 촬영하면 인식이 더 잘 됩니다.
-        </Text>
-      </View>
-
-      {/* Camera Preview with Guide */}
-      <View style={styles.cameraContainer}>
-        <View style={styles.cameraWrapper}>
-          <CameraPreview
-            cameraRef={cameraRef}
-            device={device}
-            hasPermission={hasPermission}
-            isActive={true}
-            onRequestPermission={requestCameraPermission}
-          />
-          <CameraGuide isScanning={isCapturing} />
+        {/* Header Text */}
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>
+            {'네모 칸 안에 정답지를\n맞춰주세요'}
+          </Text>
+          <Text style={styles.subtitle}>
+            그림자가 지지 않게 촬영하면 인식이 더 잘 됩니다.
+          </Text>
         </View>
-      </View>
 
-      {/* Scanned Pages Section */}
-      <ScannedPagesList
-        pages={pages}
-        selectedPageId={selectedPageId}
-        onPageSelect={selectPage}
-        onPageDelete={handleDeleteRequest}
-        onClearAll={handleClearAll}
-        style={{ paddingBottom: insets.bottom + spacing.md }}
+        {/* Camera Preview with Guide */}
+        <View style={styles.cameraContainer}>
+          <View style={styles.cameraWrapper}>
+            <CameraPreview
+              cameraRef={cameraRef}
+              device={device}
+              hasPermission={hasPermission}
+              isActive={true}
+              onRequestPermission={requestCameraPermission}
+            />
+            <CameraGuide isScanning={isCapturing} />
+          </View>
+        </View>
+
+        {/* Scanned Pages Section */}
+        <ScannedPagesList
+          pages={pages}
+          selectedPageId={selectedPageId}
+          onPageSelect={selectPage}
+          onPageDelete={handleDeleteRequest}
+          onClearAll={handleClearAll}
+        />
+      </ScrollView>
+
+      {/* Action Buttons - 하단 고정 */}
+      <ActionButtons
+        onCapture={capturePhoto}
+        onPickGallery={pickFromGallery}
+        onComplete={handleComplete}
+        onStartGrading={handleStartGrading}
+        isCapturing={isCapturing}
+        canComplete={canComplete}
       />
 
       <ConfirmModal
@@ -157,6 +181,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
+  },
+  contentArea: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: spacing.md,
   },
   headerSection: {
     paddingHorizontal: spacing.lg,
