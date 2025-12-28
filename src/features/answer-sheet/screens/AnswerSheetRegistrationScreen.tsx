@@ -1,27 +1,31 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Header, ConfirmModal } from '../../../components/molecules';
-import { ThumbnailSlider } from '../../../components/organisms';
-import { CameraPreview, ImagePreview, ActionButtons } from '../components';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Text } from '../../../components/atoms';
+import { ConfirmModal } from '../../../components/molecules';
+import { CameraPreview, ScannedPagesList, StepIndicator, CameraGuide } from '../components';
 import { useAnswerSheetImages } from '../hooks';
 import { colors, spacing } from '../../../theme';
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CAMERA_ASPECT_RATIO = 416 / 554;
+const CAMERA_WIDTH = SCREEN_WIDTH - 32;
+const CAMERA_HEIGHT = CAMERA_WIDTH / CAMERA_ASPECT_RATIO;
+
 export const AnswerSheetRegistrationScreen: React.FC = () => {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   const {
     pages,
     selectedPageId,
-    selectedPage,
     hasExistingData,
-    canComplete,
     cameraRef,
     device,
     hasPermission,
     isCapturing,
     capturePhoto,
-    pickFromGallery,
     deletePage,
     selectPage,
     completeRegistration,
@@ -79,62 +83,50 @@ export const AnswerSheetRegistrationScreen: React.FC = () => {
     setPageToDelete(null);
   }, []);
 
-  const showCamera = !selectedPage || pages.length === 0;
+  const handleClearAll = useCallback(() => {
+    pages.forEach((page) => deletePage(page.id));
+  }, [pages, deletePage]);
+
+  const currentStep = 1;
+  const totalSteps = 3;
 
   return (
-    <View style={styles.container}>
-      <Header
-        title="정답지 등록"
-        onBack={handleBack}
-        pageInfo={
-          pages.length > 0
-            ? {
-                current: selectedPage?.pageNumber || pages.length,
-                total: pages.length,
-              }
-            : undefined
-        }
-      />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Step Indicator */}
+      <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
-      <View style={styles.content}>
-        <View style={styles.previewArea}>
-          {showCamera ? (
-            <CameraPreview
-              cameraRef={cameraRef}
-              device={device}
-              hasPermission={hasPermission}
-              isActive={true}
-              onRequestPermission={requestCameraPermission}
-            />
-          ) : (
-            selectedPage && (
-              <ImagePreview
-                uri={selectedPage.uri}
-                pageNumber={selectedPage.pageNumber}
-              />
-            )
-          )}
-        </View>
-
-        <ThumbnailSlider
-          pages={pages.map((p) => ({
-            id: p.id,
-            uri: p.uri,
-            pageNumber: p.pageNumber,
-          }))}
-          selectedPageId={selectedPageId || undefined}
-          onPageSelect={selectPage}
-          onPageDelete={handleDeleteRequest}
-        />
+      {/* Header Text */}
+      <View style={styles.headerSection}>
+        <Text style={styles.title}>
+          {'네모 칸 안에 정답지를\n맞춰주세요'}
+        </Text>
+        <Text style={styles.subtitle}>
+          그림자가 지지 않게 촬영하면 인식이 더 잘 됩니다.
+        </Text>
       </View>
 
-      <ActionButtons
-        onCapture={capturePhoto}
-        onPickGallery={pickFromGallery}
-        onComplete={handleComplete}
-        isCapturing={isCapturing}
-        canComplete={canComplete}
-        pageCount={pages.length}
+      {/* Camera Preview with Guide */}
+      <View style={styles.cameraContainer}>
+        <View style={styles.cameraWrapper}>
+          <CameraPreview
+            cameraRef={cameraRef}
+            device={device}
+            hasPermission={hasPermission}
+            isActive={true}
+            onRequestPermission={requestCameraPermission}
+          />
+          <CameraGuide isScanning={isCapturing} />
+        </View>
+      </View>
+
+      {/* Scanned Pages Section */}
+      <ScannedPagesList
+        pages={pages}
+        selectedPageId={selectedPageId}
+        onPageSelect={selectPage}
+        onPageDelete={handleDeleteRequest}
+        onClearAll={handleClearAll}
+        style={{ paddingBottom: insets.bottom + spacing.md }}
       />
 
       <ConfirmModal
@@ -164,13 +156,40 @@ export const AnswerSheetRegistrationScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.white,
   },
-  content: {
-    flex: 1,
+  headerSection: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
   },
-  previewArea: {
-    flex: 1,
-    margin: spacing.md,
+  title: {
+    fontFamily: 'System',
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#0D141B',
+    textAlign: 'center',
+    lineHeight: 30,
+    letterSpacing: -0.36,
+  },
+  subtitle: {
+    fontFamily: 'System',
+    fontSize: 14,
+    fontWeight: '300',
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: spacing.sm,
+    lineHeight: 20,
+  },
+  cameraContainer: {
+    paddingHorizontal: spacing.md,
+  },
+  cameraWrapper: {
+    width: CAMERA_WIDTH,
+    height: CAMERA_HEIGHT,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
 });
