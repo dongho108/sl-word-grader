@@ -1,0 +1,1 @@
+export { AnswerSheetRegistrationScreen } from './AnswerSheetRegistrationScreen';
