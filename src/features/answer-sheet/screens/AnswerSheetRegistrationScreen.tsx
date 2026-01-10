@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import { View, StyleSheet, Dimensions, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../../../components/atoms';
@@ -90,9 +90,12 @@ export const AnswerSheetRegistrationScreen: React.FC = () => {
   }, [pages, deletePage]);
 
   const handleStartGrading = useCallback(async () => {
-    await completeRegistration();
-    // TODO: 채점 화면으로 이동
-    navigation.goBack();
+    try {
+      await completeRegistration();
+      navigation.navigate('ExamSheetRegistration');
+    } catch (error) {
+      Alert.alert('오류', '정답지 저장 중 오류가 발생했습니다.');
+    }
   }, [completeRegistration, navigation]);
 
   const currentStep = 1;
