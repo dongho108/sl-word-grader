@@ -92,8 +92,7 @@ export const ExamSheetRegistrationScreen: React.FC = () => {
 
   const handleStartGrading = useCallback(async () => {
     await completeRegistration();
-    // TODO: 채점 화면으로 이동
-    navigation.goBack();
+    navigation.navigate('Grading' as never);
   }, [completeRegistration, navigation]);
 
   const currentStep = 2;

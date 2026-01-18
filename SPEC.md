@@ -131,6 +131,10 @@ SL프라임 영어 시험 채점기
 - 올바른 정답
 - 오답 이유 (철자 오류, 단어 혼동, 미작성 등)
 
+**채점 화면 디자인**
+- 채점 화면: https://www.figma.com/design/XeGkSAPAB0xjkyeU8IVc6H/sl?node-id=4-698&t=VUoCvAGWvlzqXcG9-4
+- 채점 결과: https://www.figma.com/design/XeGkSAPAB0xjkyeU8IVc6H/sl?node-id=4-765&t=VUoCvAGWvlzqXcG9-4
+
 ---
 
 ## 4. 데이터 명세

@@ -4,6 +4,8 @@ export type RootStackParamList = {
   Home: undefined;
   AnswerSheetRegistration: undefined;
   ExamSheetRegistration: undefined;
+  Grading: undefined;
+  GradingResult: { resultId?: string } | undefined;
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =
