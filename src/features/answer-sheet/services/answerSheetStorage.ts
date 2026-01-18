@@ -6,25 +6,30 @@ const STORAGE_KEY = '@answer_sheet';
 
 export const answerSheetStorage = {
   async save(pages: AnswerSheetPage[]): Promise<void> {
-    const storedPages = await Promise.all(
-      pages.map(async (page) => {
-        const base64 = page.base64 || await imageProcessor.processForStorage(page.uri);
-        return {
-          id: page.id,
-          base64,
-          pageNumber: page.pageNumber,
-          createdAt: page.createdAt,
-        };
-      })
-    );
+    try {
+      const storedPages = await Promise.all(
+        pages.map(async (page) => {
+          const base64 = page.base64 || await imageProcessor.processForStorage(page.uri);
+          return {
+            id: page.id,
+            base64,
+            pageNumber: page.pageNumber,
+            createdAt: page.createdAt,
+          };
+        })
+      );
 
-    const data: StoredAnswerSheet = {
-      pages: storedPages,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
+      const data: StoredAnswerSheet = {
+        pages: storedPages,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
 
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('정답지 저장 실패:', error);
+      throw error;
+    }
   },
 
   async load(): Promise<AnswerSheetPage[] | null> {

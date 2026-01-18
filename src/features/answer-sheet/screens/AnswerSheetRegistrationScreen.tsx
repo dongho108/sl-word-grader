@@ -54,8 +54,13 @@ export const AnswerSheetRegistrationScreen: React.FC = () => {
   }, [navigation]);
 
   const handleComplete = useCallback(async () => {
-    await completeRegistration();
-    navigation.goBack();
+    try {
+      await completeRegistration();
+      navigation.goBack();
+    } catch (error) {
+      console.error('정답지 저장 실패:', error);
+      Alert.alert('오류', '정답지 저장 중 오류가 발생했습니다.');
+    }
   }, [completeRegistration, navigation]);
 
   const handleOverwriteConfirm = useCallback(() => {

@@ -105,7 +105,12 @@ export const useAnswerSheetStore = create<AnswerSheetState>((set, get) => ({
   saveToStorage: async () => {
     const { pages } = get();
     if (pages.length > 0) {
-      await answerSheetStorage.save(pages);
+      try {
+        await answerSheetStorage.save(pages);
+      } catch (error) {
+        console.error('스토어 저장 실패:', error);
+        throw error;
+      }
     }
   },
 

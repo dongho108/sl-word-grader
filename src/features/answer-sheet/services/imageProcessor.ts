@@ -46,18 +46,28 @@ export const imageProcessor = {
   },
 
   async toBase64(uri: string): Promise<string> {
-    const filePath = Platform.OS === 'android'
-      ? uri.replace('file://', '')
-      : uri;
+    try {
+      const filePath = Platform.OS === 'android'
+        ? uri.replace('file://', '')
+        : uri;
 
-    const base64 = await RNFS.readFile(filePath, 'base64');
-    return base64;
+      const base64 = await RNFS.readFile(filePath, 'base64');
+      return base64;
+    } catch (error) {
+      console.error('Base64 변환 실패:', uri, error);
+      throw error;
+    }
   },
 
   async processForStorage(uri: string): Promise<string> {
-    const resized = await this.resize(uri);
-    const base64 = await this.toBase64(resized.uri);
-    return base64;
+    try {
+      const resized = await this.resize(uri);
+      const base64 = await this.toBase64(resized.uri);
+      return base64;
+    } catch (error) {
+      console.error('이미지 처리 실패:', uri, error);
+      throw error;
+    }
   },
 
   getUriFromBase64(base64: string, format: 'jpeg' | 'png' = 'jpeg'): string {
