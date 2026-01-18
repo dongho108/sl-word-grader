@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../../../components/atoms';
 import { colors, spacing } from '../../../theme';
-import { useGradingResultStore } from '../../../store';
+import { useGradingResultStore, useExamSheetStore } from '../../../store';
 import {
   ScoreBadge,
   ScoreCard,
@@ -17,14 +17,16 @@ export const GradingResultScreen: React.FC = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { result, clearResult } = useGradingResultStore();
+  const { clearAll: clearExamSheet } = useExamSheetStore();
 
   const handleNextStudent = useCallback(() => {
     clearResult();
+    clearExamSheet();
     navigation.reset({
       index: 0,
       routes: [{ name: 'ExamSheetRegistration' as never }],
     });
-  }, [clearResult, navigation]);
+  }, [clearResult, clearExamSheet, navigation]);
 
   const handleGoHome = useCallback(() => {
     clearResult();
@@ -35,7 +37,10 @@ export const GradingResultScreen: React.FC = () => {
   }, [clearResult, navigation]);
 
   const handleBack = useCallback(() => {
-    navigation.goBack();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'ExamSheetRegistration' as never }],
+    });
   }, [navigation]);
 
   // Mock 데이터 (result가 없을 경우 대비)
