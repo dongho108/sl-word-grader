@@ -53,16 +53,6 @@ export const AnswerSheetRegistrationScreen: React.FC = () => {
     navigation.goBack();
   }, [navigation]);
 
-  const handleComplete = useCallback(async () => {
-    try {
-      await completeRegistration();
-      navigation.goBack();
-    } catch (error) {
-      console.error('정답지 저장 실패:', error);
-      Alert.alert('오류', '정답지 저장 중 오류가 발생했습니다.');
-    }
-  }, [completeRegistration, navigation]);
-
   const handleOverwriteConfirm = useCallback(() => {
     setShowOverwriteModal(false);
   }, []);
@@ -155,10 +145,10 @@ export const AnswerSheetRegistrationScreen: React.FC = () => {
       <ActionButtons
         onCapture={capturePhoto}
         onPickGallery={pickFromGallery}
-        onComplete={handleComplete}
         onStartGrading={handleStartGrading}
         isCapturing={isCapturing}
         canComplete={canComplete}
+        ctaButtonText="시험지 사진 찍기"
       />
 
       <ConfirmModal

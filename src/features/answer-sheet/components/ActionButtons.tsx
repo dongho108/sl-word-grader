@@ -7,25 +7,25 @@ import { colors, spacing } from '../../../theme';
 interface ActionButtonsProps {
   onCapture: () => void;
   onPickGallery: () => void;
-  onComplete: () => void;
   onStartGrading: () => void;
   isCapturing: boolean;
   canComplete: boolean;
+  ctaButtonText?: string;
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onCapture,
   onPickGallery,
-  onComplete,
   onStartGrading,
   isCapturing,
   canComplete,
+  ctaButtonText = '채점 시작하기',
 }) => {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 32 }]}>
-      {/* 상단 버튼 행: 앨범, 촬영, 완료 */}
+      {/* 상단 버튼 행: 앨범, 촬영 */}
       <View style={styles.topRow}>
         {/* 앨범 버튼 */}
         <TouchableOpacity
@@ -54,20 +54,8 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           />
         </TouchableOpacity>
 
-        {/* 완료 버튼 */}
-        <TouchableOpacity
-          style={styles.sideButtonWrapper}
-          onPress={onComplete}
-          disabled={!canComplete}
-          activeOpacity={0.7}
-        >
-          <View style={[styles.completeButton, !canComplete && styles.completeButtonDisabled]}>
-            <CheckIcon color={canComplete ? '#137FEC' : '#9CA3AF'} />
-          </View>
-          <Text style={[styles.completeButtonLabel, !canComplete && styles.completeButtonLabelDisabled]}>
-            완료
-          </Text>
-        </TouchableOpacity>
+        {/* 레이아웃 균형을 위한 빈 공간 */}
+        <View style={styles.sideButtonWrapper} />
       </View>
 
       {/* 하단 CTA 버튼: 채점 시작하기 */}
@@ -77,7 +65,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         disabled={!canComplete}
         activeOpacity={0.8}
       >
-        <Text style={styles.ctaButtonText}>채점 시작하기</Text>
+        <Text style={styles.ctaButtonText}>{ctaButtonText}</Text>
         <ArrowRightIcon />
       </TouchableOpacity>
     </View>
@@ -90,18 +78,6 @@ const AlbumIcon: React.FC = () => (
     <View style={iconStyles.albumOuter}>
       <View style={iconStyles.albumInner} />
     </View>
-  </View>
-);
-
-// 체크 아이콘 컴포넌트
-const CheckIcon: React.FC<{ color: string }> = ({ color }) => (
-  <View style={{ width: 24, height: 28, justifyContent: 'center', alignItems: 'center' }}>
-    <View
-      style={[
-        iconStyles.checkmark,
-        { borderColor: color },
-      ]}
-    />
   </View>
 );
 
@@ -129,14 +105,6 @@ const iconStyles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: '#6B7280',
-  },
-  checkmark: {
-    width: 12,
-    height: 8,
-    borderLeftWidth: 2,
-    borderBottomWidth: 2,
-    transform: [{ rotate: '-45deg' }],
-    marginTop: -2,
   },
   arrowContainer: {
     width: 24,
@@ -226,27 +194,6 @@ const styles = StyleSheet.create({
   captureButtonInnerActive: {
     backgroundColor: '#0D5BB5',
     transform: [{ scale: 0.95 }],
-  },
-  completeButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: 'rgba(19, 127, 236, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  completeButtonDisabled: {
-    backgroundColor: '#F3F4F6',
-  },
-  completeButtonLabel: {
-    marginTop: 4,
-    fontSize: 10,
-    fontWeight: '500',
-    color: '#137FEC',
-    textAlign: 'center',
-  },
-  completeButtonLabelDisabled: {
-    color: '#9CA3AF',
   },
   ctaButton: {
     flexDirection: 'row',

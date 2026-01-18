@@ -59,11 +59,6 @@ export const ExamSheetRegistrationScreen: React.FC = () => {
     navigation.goBack();
   }, [navigation]);
 
-  const handleComplete = useCallback(async () => {
-    await completeRegistration();
-    navigation.goBack();
-  }, [completeRegistration, navigation]);
-
   const handleOverwriteConfirm = useCallback(() => {
     setShowOverwriteModal(false);
   }, []);
@@ -153,7 +148,6 @@ export const ExamSheetRegistrationScreen: React.FC = () => {
       <ActionButtons
         onCapture={capturePhoto}
         onPickGallery={pickFromGallery}
-        onComplete={handleComplete}
         onStartGrading={handleStartGrading}
         isCapturing={isCapturing}
         canComplete={canComplete}
