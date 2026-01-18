@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Dimensions, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, Dimensions, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../../../components/atoms';
@@ -104,6 +104,11 @@ export const AnswerSheetRegistrationScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Back Button */}
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.backButtonText}>{'<'}</Text>
+        </TouchableOpacity>
+
         {/* Step Indicator */}
         <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
@@ -179,6 +184,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
+  },
+  backButton: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: spacing.xs,
+  },
+  backButtonText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#0D141B',
   },
   contentArea: {
     flex: 1,
